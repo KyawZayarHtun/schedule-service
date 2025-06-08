@@ -1,8 +1,8 @@
-package com.kzyt.scheduler.core.quartz;
+package com.kzyt.scheduler.quartz;
 
 
-import com.kzyt.scheduler.core.io.JobDetailDto;
-import com.kzyt.scheduler.core.io.JobIdentifier;
+import com.kzyt.scheduler.quartz.io.JobDetailDto;
+import com.kzyt.scheduler.quartz.io.JobIdentifier;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

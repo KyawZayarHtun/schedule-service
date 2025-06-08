@@ -1,7 +1,7 @@
-package com.kzyt.scheduler.core.quartz;
+package com.kzyt.scheduler.quartz;
 
-import com.kzyt.scheduler.core.io.JobDataParameter;
-import com.kzyt.scheduler.core.io.JobIdentifier;
+import com.kzyt.scheduler.quartz.io.JobDataParameter;
+import com.kzyt.scheduler.quartz.io.JobIdentifier;
 import org.quartz.Job;
 
 import java.io.Serial;

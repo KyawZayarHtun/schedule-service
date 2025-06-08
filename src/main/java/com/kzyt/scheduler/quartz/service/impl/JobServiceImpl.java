@@ -1,10 +1,10 @@
-package com.kzyt.scheduler.core.service.impl;
+package com.kzyt.scheduler.quartz.service.impl;
 
-import com.kzyt.scheduler.core.io.JobIdentifier;
-import com.kzyt.scheduler.core.quartz.DefinedJob;
-import com.kzyt.scheduler.core.quartz.JobDefinitionRegistry;
-import com.kzyt.scheduler.core.service.JobService;
-import com.kzyt.scheduler.core.service.TriggerService;
+import com.kzyt.scheduler.quartz.io.JobIdentifier;
+import com.kzyt.scheduler.quartz.DefinedJob;
+import com.kzyt.scheduler.quartz.JobDefinitionRegistry;
+import com.kzyt.scheduler.quartz.service.JobService;
+import com.kzyt.scheduler.quartz.service.TriggerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;

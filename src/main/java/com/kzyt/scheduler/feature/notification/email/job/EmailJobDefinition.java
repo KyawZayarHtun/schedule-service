@@ -1,7 +1,7 @@
 package com.kzyt.scheduler.feature.notification.email.job;
 
-import com.kzyt.scheduler.core.io.JobDataParameter;
-import com.kzyt.scheduler.core.quartz.AbstractDefinedJob;
+import com.kzyt.scheduler.quartz.io.JobDataParameter;
+import com.kzyt.scheduler.quartz.AbstractDefinedJob;
 import org.springframework.stereotype.Component;
 
 import java.io.Serial;

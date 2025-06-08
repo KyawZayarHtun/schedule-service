@@ -1,10 +1,10 @@
-package com.kzyt.scheduler.core;
+package com.kzyt.scheduler.quartz.controller;
 
-import com.kzyt.scheduler.core.io.CreateJobRequest;
-import com.kzyt.scheduler.core.io.JobDetailDto;
-import com.kzyt.scheduler.core.io.JobIdentifier;
-import com.kzyt.scheduler.core.quartz.JobDefinitionRegistry;
-import com.kzyt.scheduler.core.service.JobService;
+import com.kzyt.scheduler.quartz.io.CreateJobRequest;
+import com.kzyt.scheduler.quartz.io.JobDetailDto;
+import com.kzyt.scheduler.quartz.io.JobIdentifier;
+import com.kzyt.scheduler.quartz.JobDefinitionRegistry;
+import com.kzyt.scheduler.quartz.service.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

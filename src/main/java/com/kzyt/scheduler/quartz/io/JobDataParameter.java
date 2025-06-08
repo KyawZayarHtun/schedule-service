@@ -1,4 +1,4 @@
-package com.kzyt.scheduler.core.io;
+package com.kzyt.scheduler.quartz.io;
 
 import lombok.Builder;
 import lombok.Getter;

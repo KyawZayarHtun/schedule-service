@@ -1,6 +1,6 @@
-package com.kzyt.scheduler.core.service;
+package com.kzyt.scheduler.quartz.service;
 
-import com.kzyt.scheduler.core.io.JobIdentifier;
+import com.kzyt.scheduler.quartz.io.JobIdentifier;
 
 public interface TriggerService {
 
