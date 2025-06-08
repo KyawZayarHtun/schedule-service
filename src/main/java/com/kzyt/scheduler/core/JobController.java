@@ -1,14 +1,13 @@
 package com.kzyt.scheduler.core;
 
-import com.kzyt.scheduler.core.io.JobDataParameter;
+import com.kzyt.scheduler.core.io.CreateJobRequest;
+import com.kzyt.scheduler.core.io.JobDetailDto;
 import com.kzyt.scheduler.core.io.JobIdentifier;
 import com.kzyt.scheduler.core.quartz.JobDefinitionRegistry;
+import com.kzyt.scheduler.core.service.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
@@ -20,6 +19,7 @@ import java.util.stream.Collectors;
 public class JobController {
 
     private final JobDefinitionRegistry jobDefinitionRegistry;
+    private final JobService jobService;
 
     @GetMapping("/groups")
     public ResponseEntity<Set<String>> getAllJobGroups() {
@@ -45,16 +45,41 @@ public class JobController {
         return ResponseEntity.ok(names);
     }
 
-    @GetMapping("/parameters/{group}/{name}")
-    public ResponseEntity<List<JobDataParameter>> getJobParameters(
-            @PathVariable String name,
-            @PathVariable String group) {
-        JobIdentifier jobIdentifier = new JobIdentifier(name, group);
-        List<JobDataParameter> parameters = jobDefinitionRegistry.getJobDataParameters(jobIdentifier);
-        if (parameters.isEmpty() && jobDefinitionRegistry.getJobDefinition(jobIdentifier).isEmpty()) {
-            return ResponseEntity.notFound().build(); // Job definition itself not found
+    @PostMapping("/create")
+    public ResponseEntity<String> createJob(@RequestBody CreateJobRequest request) {
+
+        JobIdentifier jobIdentifier = new JobIdentifier(request.name(), request.group());
+
+        boolean isSuccess = jobService.createJob(jobIdentifier);
+
+        if (isSuccess) {
+            return ResponseEntity.ok("Job '" + jobIdentifier + "' created/updated successfully.");
+        } else {
+            return ResponseEntity.badRequest()
+                    .body("Failed to create/update job '" + jobIdentifier + "'. Make sure the job definition exists in the registry.");
         }
-        return ResponseEntity.ok(parameters);
+
+    }
+
+    @GetMapping
+    public ResponseEntity<List<JobDetailDto>> getAllJobs() {
+        List<JobDetailDto> jobs = jobDefinitionRegistry.getJobs();
+
+        if (jobs.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(jobs);
+    }
+
+    @DeleteMapping("delete")
+    public ResponseEntity<String> deleteJob(@RequestBody JobIdentifier jobIdentifier) {
+        boolean success = jobService.deleteJob(jobIdentifier);
+        if (success) {
+            return ResponseEntity.ok("Job " + jobIdentifier + " deleted.");
+        } else {
+            // Updated error message for clarity
+            return ResponseEntity.badRequest().body("Failed to delete job " + jobIdentifier + ". It might not exist or has active triggers. Delete all triggers first.");
+        }
     }
 
 

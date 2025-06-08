@@ -1,7 +1,7 @@
 package com.kzyt.scheduler.core.quartz;
 
 
-import com.kzyt.scheduler.core.io.JobDataParameter;
+import com.kzyt.scheduler.core.io.JobDetailDto;
 import com.kzyt.scheduler.core.io.JobIdentifier;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -52,11 +52,19 @@ public class JobDefinitionRegistry {
                 .toList();
     }
 
-    public List<JobDataParameter> getJobDataParameters(JobIdentifier jobIdentifier) {
-        return getJobDefinition(jobIdentifier)
-                .map(DefinedJob::getExpectedJobDataParameters)
-                .orElse(Collections.emptyList());
+    public List<JobDetailDto> getJobs() {
+        return jobDefinitions.entrySet().stream()
+                .map(entry -> {
+                    JobIdentifier identifier = entry.getKey();
+                    DefinedJob<?> definedJob = entry.getValue();
+                    return new JobDetailDto(
+                            identifier.name(),
+                            identifier.group(),
+                            definedJob.getDescription(),
+                            definedJob.getExpectedJobDataParameters()
+                    );
+                })
+                .toList();
     }
-
 
 }
