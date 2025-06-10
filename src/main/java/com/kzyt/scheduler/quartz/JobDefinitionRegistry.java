@@ -1,6 +1,8 @@
 package com.kzyt.scheduler.quartz;
 
 
+import com.kzyt.scheduler.quartz.exception.QuartzJobNotFoundException;
+import com.kzyt.scheduler.quartz.io.JobDataParameter;
 import com.kzyt.scheduler.quartz.io.JobDetailDto;
 import com.kzyt.scheduler.quartz.io.JobIdentifier;
 import jakarta.annotation.PostConstruct;
@@ -36,22 +38,6 @@ public class JobDefinitionRegistry {
         log.info("Total {} job definitions registered.", jobDefinitions.size());
     }
 
-    public Optional<DefinedJob<?>> getJobDefinition(JobIdentifier jobIdentifier) {
-        return Optional.ofNullable(jobDefinitions.get(jobIdentifier));
-    }
-
-    public Set<String> getAllJobGroups() {
-        return jobDefinitions.keySet().stream()
-                .map(JobIdentifier::group)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
-    public List<JobIdentifier> getJobIdentifiersByGroup(String group) {
-        return jobDefinitions.keySet().stream()
-                .filter(identifier -> identifier.group().equalsIgnoreCase(group))
-                .toList();
-    }
-
     public List<JobDetailDto> getJobs() {
         return jobDefinitions.entrySet().stream()
                 .map(entry -> {
@@ -65,6 +51,30 @@ public class JobDefinitionRegistry {
                     );
                 })
                 .toList();
+    }
+
+    public Set<String> getAllJobGroups() {
+        return jobDefinitions.keySet().stream()
+                .map(JobIdentifier::group)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Set<String> getAllJobNamesByGroup(String group) {
+        return jobDefinitions.keySet().stream()
+                .filter(identifier -> identifier.group().equalsIgnoreCase(group))
+                .map(JobIdentifier::name)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public List<JobDataParameter> getJobDataParameters(String name, String group) {
+        JobIdentifier jobIdentifier = new JobIdentifier(name, group);
+        DefinedJob<?> definedJob = jobDefinitions.get(jobIdentifier);
+
+        if (definedJob == null) {
+            throw new QuartzJobNotFoundException("Job with name '" + name + "' and group '" + group + "' not found.");
+        }
+
+        return definedJob.getExpectedJobDataParameters();
     }
 
 }

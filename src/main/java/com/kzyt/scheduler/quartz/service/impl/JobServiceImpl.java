@@ -1,13 +1,15 @@
 package com.kzyt.scheduler.quartz.service.impl;
 
-import com.kzyt.scheduler.quartz.io.JobIdentifier;
-import com.kzyt.scheduler.quartz.DefinedJob;
-import com.kzyt.scheduler.quartz.JobDefinitionRegistry;
+import com.kzyt.scheduler.quartz.exception.JobDeleteFailException;
+import com.kzyt.scheduler.quartz.exception.QuartzJobNotFoundException;
+import com.kzyt.scheduler.quartz.exception.QuartzSchedulerException;
 import com.kzyt.scheduler.quartz.service.JobService;
 import com.kzyt.scheduler.quartz.service.TriggerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.*;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -17,82 +19,57 @@ public class JobServiceImpl implements JobService {
 
     private final Scheduler scheduler;
     private final TriggerService triggerService;
-    private final JobDefinitionRegistry jobDefinitionRegistry;
 
     @Override
-    public boolean createJob(JobIdentifier jobIdentifier) {
+    public void pauseJob(String name, String group) {
 
-        var definedJobOpt = jobDefinitionRegistry.getJobDefinition(jobIdentifier);
-        if (definedJobOpt.isEmpty()) {
-            log.error("Job definition not found in registry for identifier: {}", jobIdentifier);
-            return false;
-        }
-        DefinedJob<?> definedJob = definedJobOpt.get();
+        doesJobExist(name, group);
 
         try {
-            // Build the JobDetailDto. The 'true' in addJob will replace if already present.
-            // This is useful for updating the job's description or static JobDataMap.
-            JobDetail jobDetail = buildJobDetail(jobIdentifier, definedJob.getJobClass(), new JobDataMap());
-            scheduler.addJob(jobDetail, true); // addJob(jobDetail, replace): Stores the JobDetailDto, replacing if already present
-            log.info("Job '{}' created/updated successfully in scheduler.", jobIdentifier);
-            return true;
+            scheduler.pauseJob(new JobKey(name, group));
         } catch (SchedulerException e) {
-            log.error("Error creating/updating job '{}': {}", jobIdentifier, e.getMessage(), e);
-            return false;
+            log.error("Failed to pause job: {} in group: {}", name, group, e);
+            throw new QuartzSchedulerException("can not pause job: " + name + " in group: " + group, e);
         }
     }
 
     @Override
-    public boolean deleteJob(JobIdentifier jobIdentifier) {
+    public void resumeJob(String name, String group) {
+        doesJobExist(name, group);
+
         try {
-
-            // Check if the job exists
-            if (!doesJobExist(jobIdentifier)) {
-                log.warn("Job '{}' not found. Cannot delete a non-existent job.", jobIdentifier);
-                return false;
-            }
-
-            // Check if the job has any triggers
-            if (!triggerService.doesTriggerExist(jobIdentifier)) {
-                log.warn("Job '{}' cannot be deleted because it has active triggers. Please delete all associated triggers first.", jobIdentifier);
-                return false;
-            }
-
-            boolean deleted = scheduler.deleteJob(new JobKey(jobIdentifier.name(), jobIdentifier.group()));
-            if (deleted) {
-                log.info("Deleted job: {}", jobIdentifier);
-            } else {
-                log.warn("Job '{}' could not be deleted for an unknown reason.", jobIdentifier);
-            }
-            return deleted;
+            scheduler.resumeJob(new JobKey(name, group));
         } catch (SchedulerException e) {
-            log.error("Error deleting job '{}': {}", jobIdentifier, e.getMessage(), e);
-            return false;
+            log.error("Failed to resume job: {} in group: {}", name, group, e);
+            throw new QuartzSchedulerException("can not resume job: " + name + " in group: " + group, e);
         }
     }
 
     @Override
-    public boolean doesJobExist(JobIdentifier jobIdentifier) {
+    public void deleteJob(String name, String group) {
+
+        doesJobExist(name, group);
+        triggerService.doesTriggerExist(name, group);
+
         try {
-            return scheduler.checkExists(new JobKey(jobIdentifier.name(), jobIdentifier.group()));
+            boolean isSuccess = scheduler.deleteJob(new JobKey(name, group));
+            if (!isSuccess) {
+                throw new JobDeleteFailException("can not delete job: " + name + " in group: " + group);
+            }
         } catch (SchedulerException e) {
-            log.error("Error checking existence of job '{}': {}", jobIdentifier, e.getMessage(), e);
-            return false;
+            throw new QuartzSchedulerException("can not delete job: " + name + " in group: " + group, e);
         }
     }
 
-    private JobDetail buildJobDetail(JobIdentifier jobIdentifier, Class<? extends Job> jobClass, JobDataMap jobData) {
-        JobBuilder jobBuilder = JobBuilder.newJob(jobClass)
-                .withIdentity(jobIdentifier.name(), jobIdentifier.group())
-                .withDescription("Job: " + jobIdentifier.name() + " in group: " + jobIdentifier.group())
-                .storeDurably(); // Store the job even if it has no triggers;
-
-        if (jobData != null && !jobData.isEmpty()) {
-            jobBuilder.usingJobData(jobData);
+    @Override
+    public void doesJobExist(String name, String group) {
+        try {
+            if (!scheduler.checkExists(new JobKey(name, group))) {
+                throw new QuartzJobNotFoundException("Schedule with name '" + name + "' and group '" + group + "' does not exist.");
+            }
+        } catch (SchedulerException e) {
+            throw new QuartzSchedulerException("can not check existence of job: " + name + " in group: " + group, e);
         }
-
-        return jobBuilder.build();
     }
-
 
 }

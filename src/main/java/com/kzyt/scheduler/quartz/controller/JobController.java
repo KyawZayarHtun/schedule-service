@@ -1,17 +1,17 @@
 package com.kzyt.scheduler.quartz.controller;
 
-import com.kzyt.scheduler.quartz.io.CreateJobRequest;
+import com.kzyt.scheduler.quartz.JobDefinitionRegistry;
+import com.kzyt.scheduler.quartz.io.JobDataParameter;
 import com.kzyt.scheduler.quartz.io.JobDetailDto;
 import com.kzyt.scheduler.quartz.io.JobIdentifier;
-import com.kzyt.scheduler.quartz.JobDefinitionRegistry;
 import com.kzyt.scheduler.quartz.service.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("jobs")
@@ -21,67 +21,59 @@ public class JobController {
     private final JobDefinitionRegistry jobDefinitionRegistry;
     private final JobService jobService;
 
+    @GetMapping
+    public ResponseEntity<List<JobDetailDto>> getAllJobs() {
+        List<JobDetailDto> jobs = jobDefinitionRegistry.getJobs();
+
+        return ResponseEntity.ok(jobs);
+    }
+
     @GetMapping("/groups")
     public ResponseEntity<Set<String>> getAllJobGroups() {
         Set<String> groups = jobDefinitionRegistry.getAllJobGroups();
-
-        if (groups.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
 
         return ResponseEntity.ok(groups);
     }
 
     @GetMapping("/names-by-group/{group}")
-    public ResponseEntity<List<String>> getJobNamesByGroup(@PathVariable String group) {
-        List<String> names = jobDefinitionRegistry.getJobIdentifiersByGroup(group).stream()
-                .map(JobIdentifier::name)
-                .collect(Collectors.toList());
-
-        if (names.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Set<String>> getJobNamesByGroup(@PathVariable String group) {
+        Set<String> names = jobDefinitionRegistry.getAllJobNamesByGroup(group);
 
         return ResponseEntity.ok(names);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<String> createJob(@RequestBody CreateJobRequest request) {
+    @GetMapping("/parameters/{group}/{name}")
+    public ResponseEntity<List<JobDataParameter>> getJobParameters(@PathVariable String name, @PathVariable String group) {
+        List<JobDataParameter> jobDataParameters = jobDefinitionRegistry.getJobDataParameters(name, group);
 
-        JobIdentifier jobIdentifier = new JobIdentifier(request.name(), request.group());
-
-        boolean isSuccess = jobService.createJob(jobIdentifier);
-
-        if (isSuccess) {
-            return ResponseEntity.ok("Job '" + jobIdentifier + "' created/updated successfully.");
-        } else {
-            return ResponseEntity.badRequest()
-                    .body("Failed to create/update job '" + jobIdentifier + "'. Make sure the job definition exists in the registry.");
-        }
-
+        return ResponseEntity.ok(jobDataParameters);
     }
 
-    @GetMapping
-    public ResponseEntity<List<JobDetailDto>> getAllJobs() {
-        List<JobDetailDto> jobs = jobDefinitionRegistry.getJobs();
+    @PostMapping("pause")
+    public ResponseEntity<String> pauseJob(
+            @Validated @RequestBody JobIdentifier request
+    ) {
+        jobService.pauseJob(request.name(), request.group());
 
-        if (jobs.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(jobs);
+        return ResponseEntity.ok("Job paused successfully.");
     }
 
-    @DeleteMapping("delete")
-    public ResponseEntity<String> deleteJob(@RequestBody JobIdentifier jobIdentifier) {
-        boolean success = jobService.deleteJob(jobIdentifier);
-        if (success) {
-            return ResponseEntity.ok("Job " + jobIdentifier + " deleted.");
-        } else {
-            // Updated error message for clarity
-            return ResponseEntity.badRequest().body("Failed to delete job " + jobIdentifier + ". It might not exist or has active triggers. Delete all triggers first.");
-        }
+    @PostMapping("resume")
+    public ResponseEntity<String> resumeJob(
+            @Validated @RequestBody JobIdentifier request
+    ) {
+        jobService.resumeJob(request.name(), request.group());
+
+        return ResponseEntity.ok("Job paused successfully.");
     }
 
+
+    @DeleteMapping("delete/{group}")
+    public ResponseEntity<String> deleteJob(@PathVariable String group, @RequestParam String name) {
+        jobService.deleteJob(name, group);
+
+        return ResponseEntity.ok("Job deleted successfully.");
+    }
 
 
 }

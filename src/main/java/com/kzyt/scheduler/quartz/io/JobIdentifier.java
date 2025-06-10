@@ -1,20 +1,19 @@
 package com.kzyt.scheduler.quartz.io;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public record JobIdentifier(
-    String name,
-    String group
+        @NotNull(message = "Job name cannot be null")
+        @NotBlank(message = "Job name cannot be blank")
+        String name,
+
+        @NotNull(message = "Job group cannot be null")
+        @NotBlank(message = "Job group cannot be blank")
+        String group
 ) {
 
     public JobIdentifier(String name, String group) {
-
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Job name cannot be null or empty.");
-        }
-
-        if (group == null || group.trim().isEmpty()) {
-            throw new IllegalArgumentException("Job group cannot be null or empty.");
-        }
-
         this.name = name;
         this.group = group;
     }

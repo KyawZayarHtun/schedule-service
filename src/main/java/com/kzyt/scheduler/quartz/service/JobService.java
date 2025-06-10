@@ -1,12 +1,13 @@
 package com.kzyt.scheduler.quartz.service;
 
-import com.kzyt.scheduler.quartz.io.JobIdentifier;
-
 public interface JobService {
 
-    boolean createJob(JobIdentifier jobIdentifier);
+    void pauseJob(String name, String group);
 
-    boolean deleteJob(JobIdentifier jobIdentifier);
+    void resumeJob(String name, String group);
 
-    boolean doesJobExist(JobIdentifier jobIdentifier);
+    void deleteJob(String name, String group);
+
+    void doesJobExist(String name, String group);
+
 }
