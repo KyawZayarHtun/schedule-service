@@ -1,7 +1,7 @@
 package com.kzyt.scheduler.quartz;
 
 
-import com.kzyt.scheduler.quartz.exception.QuartzJobNotFoundException;
+import com.kzyt.scheduler.quartz.exception.QuartzJobOrTriggerNotFoundException;
 import com.kzyt.scheduler.quartz.io.JobDataParameter;
 import com.kzyt.scheduler.quartz.io.JobDetailDto;
 import com.kzyt.scheduler.quartz.io.JobIdentifier;
@@ -71,7 +71,7 @@ public class JobDefinitionRegistry {
         DefinedJob<?> definedJob = jobDefinitions.get(jobIdentifier);
 
         if (definedJob == null) {
-            throw new QuartzJobNotFoundException("Job with name '" + name + "' and group '" + group + "' not found.");
+            throw new QuartzJobOrTriggerNotFoundException("Job with name '" + name + "' and group '" + group + "' not found.");
         }
 
         return definedJob.getExpectedJobDataParameters();

@@ -1,8 +1,8 @@
 package com.kzyt.scheduler.quartz.controller;
 
-import com.kzyt.scheduler.quartz.exception.JobDeleteFailException;
+import com.kzyt.scheduler.quartz.exception.JobOrTriggerDeleteFailException;
 import com.kzyt.scheduler.quartz.exception.JobHasAssociatedTriggersException;
-import com.kzyt.scheduler.quartz.exception.QuartzJobNotFoundException;
+import com.kzyt.scheduler.quartz.exception.QuartzJobOrTriggerNotFoundException;
 import com.kzyt.scheduler.quartz.exception.QuartzSchedulerException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +21,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(QuartzJobNotFoundException.class)
-    public ResponseEntity<String> handleScheduleNotFound(QuartzJobNotFoundException e) {
-        log.error("Schedule not found: {}", e.getMessage());
+    @ExceptionHandler(QuartzJobOrTriggerNotFoundException.class)
+    public ResponseEntity<String> handleScheduleNotFound(QuartzJobOrTriggerNotFoundException e) {
+        log.error("Job or Trigger not found: {}", e.getMessage());
         return ResponseEntity.notFound().build();
     }
 
@@ -33,11 +33,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
-    @ExceptionHandler(JobDeleteFailException.class)
-    public ResponseEntity<String> handleJobDeleteFail(JobDeleteFailException e) {
+    @ExceptionHandler(JobOrTriggerDeleteFailException.class)
+    public ResponseEntity<String> handleJobDeleteFail(JobOrTriggerDeleteFailException e) {
         log.error("Job delete failed: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Failed to delete job due to an internal server error.");
+                .body("Failed to delete job or trigger due to an internal server error.");
     }
 
     @ExceptionHandler(QuartzSchedulerException.class)

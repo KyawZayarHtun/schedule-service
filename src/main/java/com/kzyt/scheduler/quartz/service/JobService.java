@@ -8,6 +8,4 @@ public interface JobService {
 
     void deleteJob(String name, String group);
 
-    void doesJobExist(String name, String group);
-
 }

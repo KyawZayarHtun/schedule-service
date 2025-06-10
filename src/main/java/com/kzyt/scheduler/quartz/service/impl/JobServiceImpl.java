@@ -1,10 +1,9 @@
 package com.kzyt.scheduler.quartz.service.impl;
 
-import com.kzyt.scheduler.quartz.exception.JobDeleteFailException;
-import com.kzyt.scheduler.quartz.exception.QuartzJobNotFoundException;
+import com.kzyt.scheduler.quartz.exception.JobOrTriggerDeleteFailException;
 import com.kzyt.scheduler.quartz.exception.QuartzSchedulerException;
 import com.kzyt.scheduler.quartz.service.JobService;
-import com.kzyt.scheduler.quartz.service.TriggerService;
+import com.kzyt.scheduler.quartz.service.ValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobKey;
@@ -18,12 +17,12 @@ import org.springframework.stereotype.Service;
 public class JobServiceImpl implements JobService {
 
     private final Scheduler scheduler;
-    private final TriggerService triggerService;
+    private final ValidationService validationService;
 
     @Override
     public void pauseJob(String name, String group) {
 
-        doesJobExist(name, group);
+        validationService.doesJobExist(name, group);
 
         try {
             scheduler.pauseJob(new JobKey(name, group));
@@ -35,7 +34,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public void resumeJob(String name, String group) {
-        doesJobExist(name, group);
+        validationService.doesJobExist(name, group);
 
         try {
             scheduler.resumeJob(new JobKey(name, group));
@@ -48,27 +47,16 @@ public class JobServiceImpl implements JobService {
     @Override
     public void deleteJob(String name, String group) {
 
-        doesJobExist(name, group);
-        triggerService.doesTriggerExist(name, group);
+        validationService.doesJobExist(name, group);
+        validationService.doesAssociatedTriggersExist(name, group);
 
         try {
-            boolean isSuccess = scheduler.deleteJob(new JobKey(name, group));
-            if (!isSuccess) {
-                throw new JobDeleteFailException("can not delete job: " + name + " in group: " + group);
+            boolean isDeleted = scheduler.deleteJob(new JobKey(name, group));
+            if (!isDeleted) {
+                throw new JobOrTriggerDeleteFailException("can not delete job: " + name + " in group: " + group);
             }
         } catch (SchedulerException e) {
             throw new QuartzSchedulerException("can not delete job: " + name + " in group: " + group, e);
-        }
-    }
-
-    @Override
-    public void doesJobExist(String name, String group) {
-        try {
-            if (!scheduler.checkExists(new JobKey(name, group))) {
-                throw new QuartzJobNotFoundException("Schedule with name '" + name + "' and group '" + group + "' does not exist.");
-            }
-        } catch (SchedulerException e) {
-            throw new QuartzSchedulerException("can not check existence of job: " + name + " in group: " + group, e);
         }
     }
 
