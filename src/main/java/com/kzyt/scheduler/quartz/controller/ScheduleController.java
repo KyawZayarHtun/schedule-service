@@ -1,6 +1,6 @@
 package com.kzyt.scheduler.quartz.controller;
 
-import com.kzyt.scheduler.quartz.io.CreateScheduleRequest;
+import com.kzyt.scheduler.quartz.io.ScheduleRequest;
 import com.kzyt.scheduler.quartz.io.OnCronTrigger;
 import com.kzyt.scheduler.quartz.io.OnSimpleTrigger;
 import com.kzyt.scheduler.quartz.service.ScheduleService;
@@ -25,7 +25,7 @@ public class ScheduleController {
     private final ValidationService validationService;
 
     @PostMapping("simple")
-    public ResponseEntity<String> createSimpleSchedule(@Validated({Default.class, OnSimpleTrigger.class}) @RequestBody CreateScheduleRequest request) {
+    public ResponseEntity<String> createSimpleSchedule(@Validated({Default.class, OnSimpleTrigger.class}) @RequestBody ScheduleRequest request) {
         validateScheduleRequest(request.getJobName(), request.getJobGroup(), request.getJobDataMap());
 
         scheduleService.createSimpleSchedule(request);
@@ -34,7 +34,7 @@ public class ScheduleController {
     }
 
     @PostMapping("cron")
-    public ResponseEntity<String> createCronSchedule(@Validated({Default.class, OnCronTrigger.class}) @RequestBody CreateScheduleRequest request) {
+    public ResponseEntity<String> createCronSchedule(@Validated({Default.class, OnCronTrigger.class}) @RequestBody ScheduleRequest request) {
 
         validateCronScheduleRequest(request.getJobName(), request.getJobGroup(), request.getJobDataMap(), request.getCronExpression());
 

@@ -3,7 +3,7 @@ package com.kzyt.scheduler.quartz.service.impl;
 import com.kzyt.scheduler.quartz.JobDefinitionRegistry;
 import com.kzyt.scheduler.quartz.exception.QuartzSchedulerException;
 import com.kzyt.scheduler.quartz.helper.JobSchedulerHelper;
-import com.kzyt.scheduler.quartz.io.CreateScheduleRequest;
+import com.kzyt.scheduler.quartz.io.ScheduleRequest;
 import com.kzyt.scheduler.quartz.io.JobDetailDto;
 import com.kzyt.scheduler.quartz.service.ScheduleService;
 import com.kzyt.scheduler.quartz.service.ValidationService;
@@ -23,7 +23,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final JobSchedulerHelper schedulerHelper;
 
     @Override
-    public void createSimpleSchedule(CreateScheduleRequest request) {
+    public void createSimpleSchedule(ScheduleRequest request) {
 
         JobDetailDto jobInfo = registry.getJobDetail(request.getJobName(), request.getJobGroup());
 
@@ -42,7 +42,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public void createCronSchedule(CreateScheduleRequest request) {
+    public void createCronSchedule(ScheduleRequest request) {
 
         JobDetailDto jobInfo = registry.getJobDetail(request.getJobName(), request.getJobGroup());
 

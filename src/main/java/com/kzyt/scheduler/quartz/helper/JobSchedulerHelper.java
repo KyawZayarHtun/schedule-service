@@ -1,6 +1,6 @@
 package com.kzyt.scheduler.quartz.helper;
 
-import com.kzyt.scheduler.quartz.io.CreateScheduleRequest;
+import com.kzyt.scheduler.quartz.io.ScheduleRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -37,7 +37,7 @@ public class JobSchedulerHelper {
         return jobDetail;
     }
 
-    public void createSimpleTrigger(JobDetail jobDetail, CreateScheduleRequest request) throws SchedulerException {
+    public void createSimpleTrigger(JobDetail jobDetail, ScheduleRequest request) throws SchedulerException {
 
         Date startAtDate = Date.from(request.getStartAt().atZone(ZoneId.systemDefault()).toInstant());
 
@@ -80,7 +80,7 @@ public class JobSchedulerHelper {
 
     }
 
-    public void createCronTrigger(JobDetail jobDetail, CreateScheduleRequest request) throws SchedulerException {
+    public void createCronTrigger(JobDetail jobDetail, ScheduleRequest request) throws SchedulerException {
 
         TriggerBuilder<CronTrigger> triggerBuilder = TriggerBuilder.newTrigger()
                 .forJob(jobDetail)

@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Getter
 @Builder
-public class CreateScheduleRequest {
+public class ScheduleRequest {
 
     @NotNull(message = "Job name cannot be null", groups = {Default.class})
     @NotBlank(message = "Job name cannot be blank", groups = {Default.class})
