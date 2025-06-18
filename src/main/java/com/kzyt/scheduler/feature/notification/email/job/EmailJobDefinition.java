@@ -23,28 +23,24 @@ public class EmailJobDefinition extends AbstractDefinedJob<EmailJob> implements 
                 List.of(
                         JobDataParameter.builder()
                                 .name("subject")
-                                .type("String")
                                 .description("The subject line of the email.")
                                 .required(true)
                                 .isArray(false)
                                 .build(),
                         JobDataParameter.builder()
                                 .name("body")
-                                .type("String")
                                 .description("The main content/body of the email.")
                                 .required(true)
                                 .isArray(false)
                                 .build(),
                         JobDataParameter.builder()
                                 .name("toRecipients")
-                                .type("String")
                                 .description("Comma-separated list of recipient email addresses (e.g., 'a@example.com,b@example.com').")
                                 .required(true)
                                 .isArray(true)
                                 .build(),
                         JobDataParameter.builder()
                                 .name("ccRecipients")
-                                .type("String")
                                 .description("Comma-separated list of CC recipient email addresses.")
                                 .required(false)
                                 .isArray(true)

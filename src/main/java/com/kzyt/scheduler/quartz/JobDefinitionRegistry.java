@@ -47,10 +47,28 @@ public class JobDefinitionRegistry {
                             identifier.name(),
                             identifier.group(),
                             definedJob.getDescription(),
+                            definedJob.getJobClass(),
                             definedJob.getExpectedJobDataParameters()
                     );
                 })
                 .toList();
+    }
+
+    public JobDetailDto getJobDetail(String name, String group) {
+        JobIdentifier jobIdentifier = new JobIdentifier(name, group);
+        DefinedJob<?> definedJob = jobDefinitions.get(jobIdentifier);
+
+        if (definedJob == null) {
+            throw new QuartzJobOrTriggerNotFoundException("Job with name '" + name + "' and group '" + group + "' not found.");
+        }
+
+        return new JobDetailDto(
+                definedJob.getJobIdentifier().name(),
+                definedJob.getJobIdentifier().group(),
+                definedJob.getDescription(),
+                definedJob.getJobClass(),
+                definedJob.getExpectedJobDataParameters()
+        );
     }
 
     public Set<String> getAllJobGroups() {

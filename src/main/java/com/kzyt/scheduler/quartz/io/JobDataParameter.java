@@ -14,7 +14,6 @@ public class JobDataParameter implements Serializable {
     private static final long serialVersionUID = -6461951048035851366L;
 
     private String name;
-    private String type; // e.g., "String", "Integer", "Boolean", "Double"
     private String description;
     private boolean required;
     private boolean isArray;

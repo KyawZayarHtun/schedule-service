@@ -1,9 +1,6 @@
 package com.kzyt.scheduler.quartz.controller;
 
-import com.kzyt.scheduler.quartz.exception.JobOrTriggerDeleteFailException;
-import com.kzyt.scheduler.quartz.exception.JobHasAssociatedTriggersException;
-import com.kzyt.scheduler.quartz.exception.QuartzJobOrTriggerNotFoundException;
-import com.kzyt.scheduler.quartz.exception.QuartzSchedulerException;
+import com.kzyt.scheduler.quartz.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -55,7 +52,15 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
+//        e.getBindingResult().getFieldErrors().forEach(error ->
+//                errors.put(error.getField(), error.getDefaultMessage()));
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(MissingParameterException.class)
+    public ResponseEntity<String> handleMissingParameterException(MissingParameterException e) {
+        log.error("Missing parameter: {}", e.getMessage());
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
 
