@@ -63,6 +63,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
+    @ExceptionHandler(InvalidCronExpressionException.class)
+    public ResponseEntity<String> handleInvalidCronExpressionException(InvalidCronExpressionException e) {
+        log.error("Invalid cron expression: {}", e.getMessage());
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
 
 
 }
