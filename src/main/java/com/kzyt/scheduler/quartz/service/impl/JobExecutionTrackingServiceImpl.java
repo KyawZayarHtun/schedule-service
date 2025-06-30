@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +38,10 @@ public class JobExecutionTrackingServiceImpl implements JobExecutionTrackingServ
                 trigger.getKey().getGroup()
         );
 
-        history.setScheduledFireTime(convertToLocalDateTime(context.getScheduledFireTime()));
-        history.setActualFireTime(convertToLocalDateTime(context.getFireTime()));
+        history.setScheduledFireTime(context.getScheduledFireTime());
+        history.setActualFireTime(context.getFireTime());
         history.setExecutionStatus(JobExecutionStatus.SCHEDULED);
-        history.setNextFireTime(convertToLocalDateTime(context.getNextFireTime()));
+        history.setNextFireTime(context.getNextFireTime());
 
         history = repository.save(history);
         activeExecutions.put(getExecutionKey(context), history);
@@ -54,11 +53,11 @@ public class JobExecutionTrackingServiceImpl implements JobExecutionTrackingServ
         JobExecutionHistory history = activeExecutions.get(executionKey);
 
         if (history != null) {
-            history.setJobStartTime(convertToLocalDateTime(context.getFireTime()));
-            history.setJobEndTime(LocalDateTime.now());
+            history.setJobStartTime(context.getFireTime());
+            history.setJobEndTime(new Date());
             history.setExecutionDurationMs(context.getJobRunTime());
             history.setExecutionStatus(JobExecutionStatus.COMPLETED);
-            history.setNextFireTime(convertToLocalDateTime(context.getNextFireTime()));
+            history.setNextFireTime(context.getNextFireTime());
 
             repository.save(history);
             activeExecutions.remove(executionKey);
@@ -86,7 +85,7 @@ public class JobExecutionTrackingServiceImpl implements JobExecutionTrackingServ
                 trigger.getKey().getGroup()
         );
 
-        history.setScheduledFireTime(convertToLocalDateTime(trigger.getNextFireTime()));
+        history.setScheduledFireTime(trigger.getNextFireTime());
         history.setExecutionStatus(JobExecutionStatus.MISFIRED);
         history.setIsMisfire(true);
 
@@ -99,8 +98,8 @@ public class JobExecutionTrackingServiceImpl implements JobExecutionTrackingServ
         JobExecutionHistory history = activeExecutions.get(executionKey);
 
         if (history != null) {
-            history.setJobStartTime(convertToLocalDateTime(context.getFireTime()));
-            history.setJobEndTime(LocalDateTime.now());
+            history.setJobStartTime(context.getFireTime());
+            history.setJobEndTime(new Date());
             history.setExecutionDurationMs(context.getJobRunTime());
             history.setExecutionStatus(JobExecutionStatus.FAILED);
             history.setErrorMessage(jobException.getMessage());
@@ -136,10 +135,6 @@ public class JobExecutionTrackingServiceImpl implements JobExecutionTrackingServ
 
     private String getExecutionKey(JobExecutionContext context) {
         return context.getJobDetail().getKey().toString() + "_" + context.getFireInstanceId();
-    }
-
-    private LocalDateTime convertToLocalDateTime(Date date) {
-        return date != null ? date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime() : null;
     }
 
 }

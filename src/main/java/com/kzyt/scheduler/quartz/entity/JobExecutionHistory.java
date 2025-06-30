@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 
 @Entity
@@ -34,16 +34,16 @@ public class JobExecutionHistory  {
     private String triggerGroup;
 
     @Column(name = "scheduled_fire_time")
-    private LocalDateTime scheduledFireTime;
+    private Date scheduledFireTime;
 
     @Column(name = "actual_fire_time")
-    private LocalDateTime actualFireTime;
+    private Date actualFireTime;
 
     @Column(name = "job_start_time")
-    private LocalDateTime jobStartTime;
+    private Date jobStartTime;
 
     @Column(name = "job_end_time")
-    private LocalDateTime jobEndTime;
+    private Date jobEndTime;
 
     @Column(name = "execution_duration_ms")
     private Long executionDurationMs;
@@ -59,10 +59,10 @@ public class JobExecutionHistory  {
     private Boolean isMisfire = false;
 
     @Column(name = "next_fire_time")
-    private LocalDateTime nextFireTime;
+    private Date nextFireTime;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Date createdAt = new Date();
 
     public JobExecutionHistory(String jobName, String jobGroup, String triggerName, String triggerGroup) {
         this.jobName = jobName;
