@@ -1,5 +1,6 @@
 package com.kzyt.scheduler.quartz.controller;
 
+import com.kzyt.scheduler.quartz.io.ScheduleInfoDTO;
 import com.kzyt.scheduler.quartz.io.ScheduleRequest;
 import com.kzyt.scheduler.quartz.io.OnCronTrigger;
 import com.kzyt.scheduler.quartz.io.OnSimpleTrigger;
@@ -9,11 +10,9 @@ import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,9 +23,16 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
     private final ValidationService validationService;
 
+    @GetMapping
+    public ResponseEntity<List<ScheduleInfoDTO>> getAllScheduleJobs() {
+        List<ScheduleInfoDTO> scheduleInfos = scheduleService.getAllScheduleJobs();
+
+        return ResponseEntity.ok(scheduleInfos);
+    }
+
     @PostMapping("simple")
     public ResponseEntity<String> createSimpleSchedule(@Validated({Default.class, OnSimpleTrigger.class}) @RequestBody ScheduleRequest request) {
-        validateScheduleRequest(request.getJobName(), request.getJobGroup(), request.getJobDataMap());
+        validateScheduleRequest(request.getJobName(), request.getJobGroup(), request.getTriggerDataMap());
 
         scheduleService.createSimpleSchedule(request);
 
@@ -36,7 +42,7 @@ public class ScheduleController {
     @PostMapping("cron")
     public ResponseEntity<String> createCronSchedule(@Validated({Default.class, OnCronTrigger.class}) @RequestBody ScheduleRequest request) {
 
-        validateCronScheduleRequest(request.getJobName(), request.getJobGroup(), request.getJobDataMap(), request.getCronExpression());
+        validateCronScheduleRequest(request.getJobName(), request.getJobGroup(), request.getTriggerDataMap(), request.getCronExpression());
 
         scheduleService.createCronSchedule(request);
         return ResponseEntity.ok("Cron schedule created successfully.");

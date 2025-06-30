@@ -8,22 +8,16 @@ import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@Slf4j
-@SpringBootTest
-class ApplicationTests {
+import java.time.ZoneId;
 
-	@Autowired
-	private Scheduler scheduler;
+@Slf4j
+class ApplicationTests {
 
 	@Test
 	void contextLoads() {
 
-        try {
-			boolean b = scheduler.checkExists(new JobKey("a", "b"));
-			log.info(String.valueOf(b));
-		} catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
+		ZoneId defaultZoneId = ZoneId.systemDefault();
+		System.out.println("JVM Default Time Zone (java.time.ZoneId): " + defaultZoneId);
 
     }
 

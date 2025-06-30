@@ -3,14 +3,18 @@ package com.kzyt.scheduler.quartz.service.impl;
 import com.kzyt.scheduler.quartz.JobDefinitionRegistry;
 import com.kzyt.scheduler.quartz.exception.QuartzSchedulerException;
 import com.kzyt.scheduler.quartz.helper.JobSchedulerHelper;
-import com.kzyt.scheduler.quartz.io.ScheduleRequest;
 import com.kzyt.scheduler.quartz.io.JobDetailDto;
+import com.kzyt.scheduler.quartz.io.ScheduleInfoDTO;
+import com.kzyt.scheduler.quartz.io.ScheduleRequest;
 import com.kzyt.scheduler.quartz.service.ScheduleService;
-import com.kzyt.scheduler.quartz.service.ValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -18,9 +22,30 @@ import org.springframework.stereotype.Service;
 public class ScheduleServiceImpl implements ScheduleService {
 
     private final Scheduler scheduler;
-    private final ValidationService validationService;
     private final JobDefinitionRegistry registry;
     private final JobSchedulerHelper schedulerHelper;
+
+    @Override
+    public List<ScheduleInfoDTO> getAllScheduleJobs() {
+        List<ScheduleInfoDTO> scheduleInfos = new ArrayList<>();
+        try {
+            // Iterate over all job groups
+            for (String groupName : scheduler.getJobGroupNames()) {
+                // Iterate over all jobs in the group
+                for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+                    JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+                    List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
+
+                    for (Trigger trigger : triggers) {
+                        scheduleInfos.add(schedulerHelper.buildScheduleInfoDTO(jobDetail, trigger));
+                    }
+                }
+            }
+        } catch (SchedulerException e) {
+            log.error("Error while fetching scheduled jobs", e);
+        }
+        return scheduleInfos;
+    }
 
     @Override
     public void createSimpleSchedule(ScheduleRequest request) {

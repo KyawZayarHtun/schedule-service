@@ -1,5 +1,6 @@
 package com.kzyt.scheduler.quartz.helper;
 
+import com.kzyt.scheduler.quartz.io.ScheduleInfoDTO;
 import com.kzyt.scheduler.quartz.io.ScheduleRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,39 @@ import java.util.Optional;
 public class JobSchedulerHelper {
 
     private final Scheduler scheduler;
+
+    public ScheduleInfoDTO buildScheduleInfoDTO(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
+
+        ScheduleInfoDTO.ScheduleInfoDTOBuilder builder = ScheduleInfoDTO.builder();
+
+        builder.jobName(jobDetail.getKey().getName())
+                .jobGroup(jobDetail.getKey().getGroup())
+                .jobDescription(jobDetail.getDescription())
+                .jobClass(jobDetail.getJobClass().getName())
+                .jobDataMap(jobDetail.getJobDataMap().getWrappedMap());
+
+        builder.triggerName(trigger.getKey().getName())
+                .triggerGroup(trigger.getKey().getGroup())
+                .triggerState(scheduler.getTriggerState(trigger.getKey()).name())
+                .nextFireTime(trigger.getNextFireTime())
+                .previousFireTime(trigger.getPreviousFireTime())
+                .triggerDataMap(trigger.getJobDataMap().getWrappedMap());
+
+        builder.startTime(trigger.getStartTime())
+                .endTime(trigger.getEndTime());
+
+        if (trigger instanceof SimpleTrigger simpleTrigger) {
+            builder.triggerType("Simple")
+                    .simpleTriggerRepeatInterval(simpleTrigger.getRepeatInterval())
+                    .simpleTriggerRepeatCount(simpleTrigger.getRepeatCount());
+        } else if (trigger instanceof CronTrigger cronTrigger) {
+            builder.triggerType("Cron")
+                    .cronExpression(cronTrigger.getCronExpression());
+        }
+
+        return builder.build();
+
+    }
 
     public JobDetail createJobDetail(String jobName, String jobGroup, Class<? extends Job> jobClass) throws SchedulerException {
 
@@ -52,7 +86,7 @@ public class JobSchedulerHelper {
                 .withIdentity(request.getTriggerName(), request.getJobGroup())
                 .startAt(startAtDate)
                 .withSchedule(simpleScheduleBuilder)
-                .usingJobData(new JobDataMap(request.getJobDataMap()))
+                .usingJobData(new JobDataMap(request.getTriggerDataMap()))
                 .withDescription("Trigger for " + request.getJobName() + " in group " + request.getJobGroup());
 
         addEndAtInTriggerIfExist(triggerBuilder, request.getEndAt());
@@ -61,23 +95,15 @@ public class JobSchedulerHelper {
     }
 
     private void configureSimpleScheduleBuilder(SimpleScheduleBuilder simpleScheduleBuilder, Integer repeatCount, Integer repeatIntervalInSeconds) {
-        boolean hasRepeatCount = repeatCount != null;
-        boolean hasRepeatIntervalInSeconds = repeatIntervalInSeconds != null;
-
-        if (hasRepeatCount) {
-            if (repeatCount == -1) {
-                simpleScheduleBuilder.repeatForever();
-            } else {
-                simpleScheduleBuilder.withRepeatCount(repeatCount);
-            }
+        if (repeatCount == null) {
+            simpleScheduleBuilder.repeatForever();
+        } else {
+            simpleScheduleBuilder.withRepeatCount(repeatCount);
         }
 
-        if (hasRepeatIntervalInSeconds) {
+        if (repeatIntervalInSeconds != null) {
             simpleScheduleBuilder.withIntervalInSeconds(repeatIntervalInSeconds);
         }
-
-        simpleScheduleBuilder.withRepeatCount(0);
-
     }
 
     public void createCronTrigger(JobDetail jobDetail, ScheduleRequest request) throws SchedulerException {
@@ -86,7 +112,7 @@ public class JobSchedulerHelper {
                 .forJob(jobDetail)
                 .withIdentity(request.getTriggerName(), request.getJobGroup())
                 .withSchedule(CronScheduleBuilder.cronSchedule(request.getCronExpression()))
-                .usingJobData(new JobDataMap(request.getJobDataMap()))
+                .usingJobData(new JobDataMap(request.getTriggerDataMap()))
                 .withDescription("Cron Trigger for " + request.getJobName() + " in group " + request.getJobGroup());
 
         addEndAtInTriggerIfExist(triggerBuilder, request.getEndAt());

@@ -4,12 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record JobIdentifier(
-        @NotNull(message = "Job name cannot be null")
-        @NotBlank(message = "Job name cannot be blank")
+        @NotNull(message = "Name cannot be null")
+        @NotBlank(message = "Name cannot be blank")
         String name,
 
-        @NotNull(message = "Job group cannot be null")
-        @NotBlank(message = "Job group cannot be blank")
+        @NotNull(message = "Group cannot be null")
+        @NotBlank(message = "Group cannot be blank")
         String group
 ) {
 

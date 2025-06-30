@@ -34,18 +34,17 @@ public class ScheduleRequest {
 
     private LocalDateTime endAt;
 
-    @NotNull(message = "Repeat count cannot be null", groups = {OnSimpleTrigger.class})
     @Min(value = 1, message = "Repeat count must be at least 1", groups = {OnSimpleTrigger.class})
     private Integer repeatCount;
 
-    @NotNull(message = "Repeat count cannot be null", groups = {OnSimpleTrigger.class})
-    @Min(value = 1, message = "Repeat count must be at least 1", groups = {OnSimpleTrigger.class})
+    @NotNull(message = "Repeat interval seconds cannot be null", groups = {OnSimpleTrigger.class})
+    @Min(value = 1, message = "Repeat interval seconds must be at least 1", groups = {OnSimpleTrigger.class})
     private Integer repeatIntervalInSeconds;
 
     @ValidCron(message = "Invalid cron expression", groups = {OnCronTrigger.class})
     private String cronExpression;
 
-    private Map<String, String> jobDataMap;
+    private Map<String, String> triggerDataMap;
 
 
 }

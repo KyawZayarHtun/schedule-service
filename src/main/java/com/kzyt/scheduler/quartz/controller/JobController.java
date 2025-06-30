@@ -64,7 +64,7 @@ public class JobController {
     ) {
         jobService.resumeJob(request.name(), request.group());
 
-        return ResponseEntity.ok("Job paused successfully.");
+        return ResponseEntity.ok("Job resume successfully.");
     }
 
 

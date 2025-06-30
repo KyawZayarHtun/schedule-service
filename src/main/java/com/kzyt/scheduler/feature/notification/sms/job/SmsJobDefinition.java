@@ -23,7 +23,6 @@ public class SmsJobDefinition extends AbstractDefinedJob<SmsJob> implements Seri
                 List.of(
                         JobDataParameter.builder()
                                 .name("phoneNo")
-                                .type("String")
                                 .description("The phone number to which the SMS will be sent.")
                                 .required(true)
                                 .isArray(false)

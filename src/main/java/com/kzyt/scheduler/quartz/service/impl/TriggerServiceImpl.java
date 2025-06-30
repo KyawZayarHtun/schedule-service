@@ -21,7 +21,7 @@ public class TriggerServiceImpl implements TriggerService {
 
     @Override
     public void pauseTrigger(String name, String group) {
-        validationService.doesJobExist(name, group);
+        validationService.doesTriggerExist(name, group);
 
         try {
             scheduler.pauseTrigger(new TriggerKey(name, group));
@@ -34,7 +34,7 @@ public class TriggerServiceImpl implements TriggerService {
 
     @Override
     public void resumeTrigger(String name, String group) {
-        validationService.doesJobExist(name, group);
+        validationService.doesTriggerExist(name, group);
 
         try {
             scheduler.resumeTrigger(new TriggerKey(name, group));

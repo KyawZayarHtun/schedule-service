@@ -29,7 +29,7 @@ public class TriggerController {
     ) {
         triggerService.resumeTrigger(request.name(), request.group());
 
-        return ResponseEntity.ok("Trigger paused successfully.");
+        return ResponseEntity.ok("Trigger resume successfully.");
     }
 
 
