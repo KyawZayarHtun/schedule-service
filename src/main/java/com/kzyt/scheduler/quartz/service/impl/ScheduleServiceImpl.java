@@ -7,6 +7,7 @@ import com.kzyt.scheduler.quartz.io.JobDetailDto;
 import com.kzyt.scheduler.quartz.io.ScheduleInfoDTO;
 import com.kzyt.scheduler.quartz.io.ScheduleRequest;
 import com.kzyt.scheduler.quartz.service.ScheduleService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -19,6 +20,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Tag(name = "Schedule Management", description = "Endpoints for managing jobs in the scheduler")
 public class ScheduleServiceImpl implements ScheduleService {
 
     private final Scheduler scheduler;

@@ -37,3 +37,8 @@ spring:
 server:
   servlet:
     context-path: /api
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
