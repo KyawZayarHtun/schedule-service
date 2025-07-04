@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/job-execution")
+@RequestMapping("job-execution")
 @RequiredArgsConstructor
 @Tag(name = "Job Execution History")
 public class JobExecutionHistoryController {
