@@ -51,6 +51,18 @@ public class JobController {
         return ResponseEntity.ok(groups);
     }
 
+    @Operation(summary = "Get all job names",
+            description = "Retrieve a list of job names")
+    @ApiResponse(responseCode = "200", description = "List of job names retrieved successfully",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = String[].class)))
+    @GetMapping("/names")
+    public ResponseEntity<Set<String>> getJobNames() {
+        Set<String> names = jobDefinitionRegistry.getAllJobNames();
+        names.forEach(System.out::println);
+        return ResponseEntity.ok(names);
+    }
+
     @Operation(summary = "Get job names by group",
             description = "Retrieve a list of job names for a specific job group")
     @ApiResponse(responseCode = "200", description = "List of job names by group retrieved successfully",

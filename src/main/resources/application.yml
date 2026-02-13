@@ -11,7 +11,7 @@ spring:
       org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
       org.quartz.jobStore.useProperties: true
       org.quartz.jobStore.tablePrefix: QRTZ_
-      org.quartz.jobStore.isClustered: true
+      org.quartz.jobStore.isClustered: false
       org.quartz.threadPool.threadCount: 5
 
   datasource:
@@ -34,9 +34,9 @@ spring:
     baseline-on-migrate: true
     validate-on-migrate: true
 
-server:
-  servlet:
-    context-path: /api
+#server:
+#  servlet:
+#    context-path: /api
 
 springdoc:
   api-docs:

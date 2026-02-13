@@ -28,7 +28,7 @@ public class ScheduleRequest {
     @NotBlank(message = "Trigger Name cannot be blank", groups = {Default.class})
     private String triggerName;
 
-    @NotNull(message = "Trigger Group cannot be null", groups = {OnSimpleTrigger.class})
+    @NotNull(message = "Start Time cannot be null", groups = {OnSimpleTrigger.class})
     @FutureOrPresent(message = "Start time must be in the future or present", groups = {OnSimpleTrigger.class})
     private LocalDateTime startAt;
 

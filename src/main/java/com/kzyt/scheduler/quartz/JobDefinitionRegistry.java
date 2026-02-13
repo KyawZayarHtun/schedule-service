@@ -84,6 +84,10 @@ public class JobDefinitionRegistry {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+    public Set<String> getAllJobNames() {
+        return definedJobs.stream().map(j -> j.getJobIdentifier().name()).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
     public List<JobDataParameter> getJobDataParameters(String name, String group) {
         JobIdentifier jobIdentifier = new JobIdentifier(name, group);
         DefinedJob<?> definedJob = jobDefinitions.get(jobIdentifier);
